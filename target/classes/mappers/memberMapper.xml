@@ -9,6 +9,7 @@
       <id property ="id" column ="id" />
       <result property ="pw" column ="pw" />
       <result property ="addr" column ="addr" />
+      <result property ="sessionId" column ="session_id" />
    </resultMap>
 
 
@@ -21,7 +22,12 @@
    <insert id="register">
    		insert into membership(id,pw,addr) values(#{id},#{pw},#{addr})
    </insert>
-   
+   <update id="keepLogin">
+   		update membership set session_id=#{sessionId} where id=#{id}
+   </update>
+   <select id="getUserSessionId" resultMap="member">
+   		select * from membership where session_id = #{sessionId}
+   </select>
   </mapper>
   
   

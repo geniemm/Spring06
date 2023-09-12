@@ -13,15 +13,16 @@ import com.care.root.mybatis.MemberMapper;
 
 @Service
 public class MemberServiceImpl implements MemberService {
-	
+
 	@Autowired
 	MemberMapper mm;
-	
+
 	BCryptPasswordEncoder encoder; // 비밀번호 암호화하는 기능
+
 	public MemberServiceImpl() {
 		encoder = new BCryptPasswordEncoder();
 	}
-	
+
 	public int logChk(String id, String pw) {
 		MemberDTO dto = mm.getMember(id);
 		int result = 1;
@@ -37,6 +38,18 @@ public class MemberServiceImpl implements MemberService {
 		return result;
 	}
 
+	public void keepLogin(String sessionId, String id) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("sessionId", sessionId);
+		map.put("id", id);
+		mm.keepLogin(map);
+	}
+
+	public MemberDTO getUserSessionId(String sessionId) {
+		
+		return mm.getUserSessionId( sessionId );
+	}
+
 	public List<MemberDTO> getList() {
 		List<MemberDTO> list = null;
 		try {
@@ -48,26 +61,27 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	public int register(MemberDTO dto, String[] addr) {
-		String ad ="";
-		for(String a:addr) {
-			ad+= a+"/";
+		String ad = "";
+		for (String a : addr) {
+			ad += a + "/";
 		}
 		dto.setAddr(ad); // 변경한(합쳐진) 주소 다시 넣어준다
-		System.out.println("평문:" +dto.getPw());
-		System.out.println("암호화:" +encoder.encode(dto.getPw()));
-		
+		System.out.println("평문:" + dto.getPw());
+		System.out.println("암호화:" + encoder.encode(dto.getPw()));
+
 		dto.setPw(encoder.encode(dto.getPw()));
-		int result=0;
+		int result = 0;
 		try {
-			result=1;
-			mm.register( dto );
+			result = 1;
+			mm.register(dto);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
+
 	public Map<String, Object> getMember(String id) {
-		
+
 		MemberDTO dto = mm.getMember(id);
 		System.out.println(dto.getId());
 		System.out.println(dto.getPw());
@@ -75,7 +89,7 @@ public class MemberServiceImpl implements MemberService {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("dto", dto);
 		String[] addr = dto.getAddr().split("/");
-		if(addr.length > 1) {
+		if (addr.length > 1) {
 			map.put("addr1", addr[0]);
 			map.put("addr2", addr[1]);
 			map.put("addr3", addr[2]);
